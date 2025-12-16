@@ -35,8 +35,8 @@ do
                 ,"ResourceRecords"  : [{
                        "Value"        : "' $IP '"
                 }]
-           }
-           }]
+            }
+            }]
         }
         '
-done 
+done

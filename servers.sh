@@ -3,7 +3,7 @@
 AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-00434aea2a5a1cc91"
 ZONE_ID="Z001445138PJ8LEVGMQY"
-DOMAIN_NAME="devops-practice.space"
+DOMAIN_NAME="devops_practice.space"
 for instance in $@
 do
 

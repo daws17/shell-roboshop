@@ -2,7 +2,8 @@
 
 AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-00434aea2a5a1cc91"
-
+ZONE_ID="Z001445138PJ8LEVGMQY"
+DOMAIN_NAME="devops-practice.space"
 for instance in $@
 do
 
@@ -10,11 +11,32 @@ do
 
     if [ $instance != "frontend" ];then
          IP=$(aws ec2 describe-instances --instance-ids i-03a677ae88b0a425a --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
+         RECORD_NAME="$INSTANCE.$DOMAIN_NAME"
     else
          IP=$(aws ec2 describe-instances --instance-ids i-03a677ae88b0a425a --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+         RECORD_NAME="$DOMAIN_NAME"
          
     fi
 
-    echo "$instance: $IP"
+        echo "$instance: $IP"
 
+
+        aws route53 change-resource-record-sets \
+        --hosted-zone-id Z001445138PJ8LEVGMQY \
+        --change-batch '
+        {
+             "Comment": "updating record set record set"
+             ,"Changes": [{
+             "Action"              : "upsert"
+            ,"ResourceRecordSet"  : {
+                  "Name"              : "'$RECORD_NAME'"
+                  ,"Type"             : "A"
+                  ,"TTL"              : 1
+                  ,"ResourceRecords"  : [{
+                       "Value"         : "'" $IP "'"
+              }]
+           }
+           }]
+        }
+       '
 done 

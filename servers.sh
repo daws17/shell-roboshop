@@ -11,7 +11,6 @@ do
     if [ $instance != "frontend" ]; then
          IP=$(aws ec2 describe-instances --instance-id i-i-03a677ae88b0a425a --query "Reservations[0].Instances[0].PrivateIpAddress" --output text)
     else
-    if [ $instance != "frontend" ]; then
          IP=$(aws ec2 describe-instances --instance-id i-i-03a677ae88b0a425a --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
          
     fi

@@ -22,7 +22,7 @@ do
 
 
         aws route53 change-resource-record-sets \
-        --hosted-zone-id $ZONE-ID \
+        --hosted-zone-id $HOSTED_ZONE-ID \
         --change-batch '
         {
              "Comment": "updating record set record set"

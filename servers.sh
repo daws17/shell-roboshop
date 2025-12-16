@@ -3,7 +3,7 @@
 AMI_ID="ami-09c813fb71547fc4f"
 SG_ID="sg-00434aea2a5a1cc91"
 ZONE_ID="Z001445138PJ8LEVGMQY"
-DOMAIN_NAME="devops_practice.space"
+DOMAIN_NAME="devops-practice.space"
 for instance in $@
 do
 
@@ -22,7 +22,7 @@ do
 
 
         aws route53 change-resource-record-sets \
-        --hosted-zone-id Z001445138PJ8LEVGMQY \
+        --hosted-zone-id $ZONE-ID \
         --change-batch '
         {
              "Comment": "updating record set record set"
@@ -33,10 +33,10 @@ do
                   ,"Type"             : "A"
                   ,"TTL"              : 1
                   ,"ResourceRecords"  : [{
-                       "Value"        : "'" $IP "'"
+                       "Value"        : "' $IP '"
               }]
            }
            }]
         }
-       '
+        '
 done 

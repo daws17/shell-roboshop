@@ -8,6 +8,7 @@ N="\e[34m"
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+SCRIPT_DIR=$PWD
 MONGODB_HOST="mongodb.devops-practice.space"
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
@@ -37,10 +38,15 @@ VALIDATE $? "enabling nodejs 20"
 dnf install nodejs -y &>> $LOG_FILE
 VALIDATE $? "installing nodejs 20"
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
-VALIDATE $? "creating system user"
+id roboshop
+if [ $? -ne 0 ]; then &>> $LOG_FILE
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
+    VALIDATE $? "creating system user"
+else
+    echo -e "user already exit ....$Y SKIPPING $N"
+fi
 
-mkdir /app
+mkdir -p/app
 VALIDATE $? "creating app directory" 
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>> $LOG_FILE
@@ -55,7 +61,7 @@ VALIDATE $? "unzip catalogue"
 npm install &>> $LOG_FILE
 VALIDATE $? "installing dependencies"
 
-cp catalogue.service /etc/systemd/system/catalogue.service
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "copy systemctl services" 
 
 systemctl daemon-reload

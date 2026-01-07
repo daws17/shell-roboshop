@@ -49,8 +49,8 @@ fi
 mkdir -p /app
 VALIDATE $? "creating app directory" 
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOG_FILE
-VALIDATE $? "downloding user applications" 
+curl -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>> $LOG_FILE
+VALIDATE $? "downloding cart applications" 
 
 cd /app
 VALIDATE $? "changing to app directory"
@@ -68,8 +68,8 @@ cp $SCRIPT_DIR/user.service /etc/systemd/system/user.service
 VALIDATE $? "copy systemctl service" 
 
 systemctl daemon-reload
-systemctl enable user &>> $LOG_FILE
-VALIDATE $? "enable user"
+systemctl enable cart &>> $LOG_FILE
+VALIDATE $? "enable cart"
 
-systemctl restart user
-VALIDATE $? "restarted user services"
+systemctl restart cart
+VALIDATE $? "restarted cart services"

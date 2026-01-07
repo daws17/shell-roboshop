@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -euo pipefail
+
+trap 'echo "there is error in $LINENO, command is: $BASH_COMMAND"' ERR
+
 USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
@@ -20,56 +24,36 @@ if [ $USERID -ne 0 ]; then
     exit 1
 fi
 
-VALIDATE(){
-    if [ $1 -ne 0 ]; then
-        echo -e "$2....$R FAILURE $N"| tee -a $LOG_FILE
-        exit 1
-    else
-        echo -e "$2....$G SUCCESS $N"| tee -a $LOG_FILE
-    fi
-}
+
 
 dnf module disable nodejs -y &>> $LOG_FILE
-VALIDATE $? "disabling nodejs"
 
 dnf module enable nodejs:20 -y &>> $LOG_FILE
-VALIDATE $? "enabling nodejs 20"
 
 dnf install nodejs -y &>> $LOG_FILE
-VALIDATE $? "installing nodejs 20"
 
 id roboshop
 if [ $? -ne 0 ]; then &>> $LOG_FILE
     useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
-    VALIDATE $? "creating system user"
 else
     echo -e "user already exit ....$Y SKIPPING $N"
 fi
 
 mkdir -p /app
-VALIDATE $? "creating app directory" 
 
 curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOG_FILE
-VALIDATE $? "downloding user applications" 
 
 cd /app
-VALIDATE $? "changing to app directory"
 
 rm -rf /app/*
-VALIDATE $? "removing existing code"
 
 unzip /tmp/user.zip &>> $LOG_FILE
-VALIDATE $? "unzip user"
 
 npm install &>> $LOG_FILE
-VALIDATE $? "installing dependencies"
 
 cp $SCRIPT_DIR/user.service /etc/systemd/system/user.service
-VALIDATE $? "copy systemctl service" 
 
 systemctl daemon-reload
 systemctl enable user &>> $LOG_FILE
-VALIDATE $? "enable user"
 
 systemctl restart user
-VALIDATE $? "restarted user services"

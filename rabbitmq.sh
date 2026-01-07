@@ -26,7 +26,7 @@ fi
 
 
 
-CP $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>> $LOG_FILE
+Cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>> $LOG_FILE
 
 dnf install rabbitmq-server -y &>> $LOG_FILE
 

@@ -70,3 +70,6 @@ VALIDATE $? "copy systemctl service"
 systemctl daemon-reload
 systemctl enable user &>> $LOG_FILE
 VALIDATE $? "enable user"
+
+systemctl start user
+VALIDATE $? "restarted user services"

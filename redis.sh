@@ -44,3 +44,5 @@ VALIDATE $? "enabling redis"
 
 systemctl start redis &>> $LOG_FILE
 VALIDATE $? "starting redis"
+
+END_TIME=$(date +%s)

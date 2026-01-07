@@ -29,7 +29,7 @@ VALIDATE(){
     fi
 }
 
-CP $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
+CP $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>> $LOG_FILE
 
 dnf install rabbitmq-server -y &>> $LOG_FILE
 VALIDATE $? "installing rabbitmq server"
@@ -40,10 +40,10 @@ VALIDATE $? "enabling rabbitmq server"
 systemctl start rabbitmq-server &>> $LOG_FILE
 VALIDATE $? "starting rabbitmq server"
 
-rabbitmqctl add_user roboshop roboshop123
+rabbitmqctl add_user roboshop roboshop123 &>> $LOG_FILE
 VALIDATE $? "adding user"
 
-rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>> $LOG_FILE
 VALIDATE $? "setting permissions"
 
 END_TIME=$(date +%s)

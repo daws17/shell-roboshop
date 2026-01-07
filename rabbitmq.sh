@@ -24,15 +24,28 @@ if [ $USERID -ne 0 ]; then
     exit 1
 fi
 
+VALIDATE(){
+    if [ $1 -ne 0 ]; then
+        echo -e "$2....$R FAILURE $N"| tee -a $LOG_FILE
+        exit 1
+    else
+        echo -e "$2....$G SUCCESS $N"| tee -a $LOG_FILE
+    fi
+}
+
 
 
 cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>> $LOG_FILE
+VALIDATE $? "adding rabbitmq repo"
 
 dnf install rabbitmq-server -y &>> $LOG_FILE
+VALIDATE $? "installing rabbitmq server"
 
 systemctl enable rabbitmq-server &>> $LOG_FILE
+VALIDATE $? "enabling rabbitmq server"
 
 systemctl start rabbitmq-server &>> $LOG_FILE
+VALIDATE $? "start rabbitmq"
 
 rabbitmqctl add_user roboshop roboshop123 &>> $LOG_FILE
 rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>> $LOG_FILE

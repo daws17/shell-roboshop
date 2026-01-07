@@ -48,4 +48,4 @@ VALIDATE $? "starting redis"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( END_TIME - START_TIME ))
-echo "script executed in : $Y $TOTAL_TIME seconds $N"
+echo -e "script executed in : $Y $TOTAL_TIME seconds $N"

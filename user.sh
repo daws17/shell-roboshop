@@ -1,0 +1,72 @@
+#!/bin/bash
+
+USERID=$(id -u)
+R="\e[31m"
+G="\e[32m"
+Y="\e[33m"
+N="\e[34m"
+
+LOGS_FOLDER="/var/log/shell-roboshop"
+SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
+SCRIPT_DIR=$PWD
+MONGODB_HOST="devops-practice.space"
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
+
+mkdir -p $LOGS_FOLDER
+echo "script started executed at : $(date)" | tee -a $LOG_FILE
+
+if [ $USERID -ne 0 ]; then
+    echo "ERROR:: please run the script with root privilage"
+    exit 1
+fi
+
+VALIDATE(){
+    if [ $1 -ne 0 ]; then
+        echo -e "$2....$R FAILURE $N"| tee -a $LOG_FILE
+        exit 1
+    else
+        echo -e "$2....$G SUCCESS $N"| tee -a $LOG_FILE
+    fi
+}
+
+dnf module disable nodejs -y &>> $LOG_FILE
+VALIDATE $? "disabling nodejs"
+
+dnf module enable nodejs:20 -y &>> $LOG_FILE
+VALIDATE $? "enabling nodejs 20"
+
+dnf install nodejs -y &>> $LOG_FILE
+VALIDATE $? "installing nodejs 20"
+
+id roboshop
+if [ $? -ne 0 ]; then &>> $LOG_FILE
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
+    VALIDATE $? "creating system user"
+else
+    echo -e "user already exit ....$Y SKIPPING $N"
+fi
+
+mkdir -p /app
+VALIDATE $? "creating app directory" 
+
+curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOG_FILE
+VALIDATE $? "downloding user applications" 
+
+cd /app
+VALIDATE $? "changing to app directory"
+
+rm -rf /app/*
+VALIDATE $? "removing existing code"
+
+unzip /tmp/user.zip &>> $LOG_FILE
+VALIDATE $? "unzip user"
+
+npm install &>> $LOG_FILE
+VALIDATE $? "installing dependencies"
+
+cp $SCRIPT_DIR/user.service /etc/systemd/system/user.service
+VALIDATE $? "copy systemctl service" 
+
+systemctl daemon-reload
+systemctl enable user &>> $LOG_FILE
+VALIDATE $? "enable user"

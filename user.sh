@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -euo pipefail
+
+trap 'echo "there is error in $LINENO, command is: $BASH_COMMAND"' ERR
+
 USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
@@ -29,47 +33,28 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y &>> $LOG_FILE
-VALIDATE $? "disabling nodejs"
+dnf module disable nodejs -y
 
-dnf module enable nodejs:20 -y &>> $LOG_FILE
-VALIDATE $? "enabling nodejs 20"
+dnf module enable nodejs:20 -y
 
-dnf install nodejs -y &>> $LOG_FILE
-VALIDATE $? "installing nodejs 20"
+dnf install nodejs -y
 
-id roboshop
-if [ $? -ne 0 ]; then &>> $LOG_FILE
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOG_FILE
-    VALIDATE $? "creating system user"
-else
-    echo -e "user already exit ....$Y SKIPPING $N"
-fi
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
 
-mkdir -p /app
-VALIDATE $? "creating app directory" 
+mkdir /app 
 
-curl -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>> $LOG_FILE
-VALIDATE $? "downloding user applications" 
+curl -L -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip
 
 cd /app
-VALIDATE $? "changing to app directory"
 
-rm -rf /app/*
-VALIDATE $? "removing existing code"
+unzip /tmp/user.zip
 
-unzip /tmp/user.zip &>> $LOG_FILE
-VALIDATE $? "unzip user"
+cd /app
 
-npm install &>> $LOG_FILE
-VALIDATE $? "installing dependencies"
-
-cp $SCRIPT_DIR/user.service /etc/systemd/system/user.service
-VALIDATE $? "copy systemctl service" 
+npm install
 
 systemctl daemon-reload
-systemctl enable user &>> $LOG_FILE
-VALIDATE $? "enable user"
 
-systemctl restart user
-VALIDATE $? "restarted user services"
+systemctl enable user
+
+systemctl start user
